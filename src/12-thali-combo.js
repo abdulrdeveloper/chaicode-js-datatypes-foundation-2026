@@ -53,17 +53,51 @@
  *   // => "RAJASTHANI THALI (Veg) - Items: dal - Rs.250.00"
  */
 export function createThaliDescription(thali) {
-  // Your code here
+  if (typeof thali !== 'object' || thali === null) {
+    return "";
+  }
+  if (typeof thali.name !== 'string' || !Array.isArray(thali.items) || typeof thali.price !== 'number' || typeof thali.isVeg !== 'boolean') {
+    return "";
+  }
+  const { name, items, price, isVeg } = thali;
+  return `${name.toUpperCase()} (${isVeg ? "Veg" : "Non-Veg"}) - Items: ${items.join(", ")} - Rs.${price.toFixed(2)}`;
 }
 
 export function getThaliStats(thalis) {
-  // Your code here
+  if (!Array.isArray(thalis) || thalis.length === 0) {
+    return null;
+  }
+  const totalThalis = thalis.length;
+  const vegCount = thalis.filter(thali => thali.isVeg).length;
+  const nonVegCount = totalThalis - vegCount;
+  const avgPrice = (thalis.reduce((sum, thali) => sum + thali.price, 0) / totalThalis).toFixed(2);
+  const prices = thalis.map(thali => thali.price);
+  const cheapest = Math.min(...prices);
+  const costliest = Math.max(...prices);
+  const names = thalis.map(thali => thali.name);
+  return { totalThalis, vegCount, nonVegCount, avgPrice, cheapest, costliest, names };
 }
 
 export function searchThaliMenu(thalis, query) {
-  // Your code here
+  if (!Array.isArray(thalis) || typeof query !== 'string') {
+    return [];
+  }
+  const lowerQuery = query.toLowerCase();
+  return thalis.filter(thali => 
+    thali.name.toLowerCase().includes(lowerQuery) || 
+    thali.items.some(item => item.toLowerCase().includes(lowerQuery))
+  );
 }
 
+
 export function generateThaliReceipt(customerName, thalis) {
-  // Your code here
+  if (typeof customerName !== 'string' || !Array.isArray(thalis) || thalis.length === 0) {
+    return "";
+  }
+
+  const upperName = customerName.toUpperCase();
+  const lineItems = thalis.map((thali)=> `- ${thali.name} x Rs.${thali.price}`);
+  const total = thalis.reduce((total,sum) => total + sum.price,0)
+  const count = thalis.length;
+  return `THALI RECEIPT\n---\nCustomer: ${upperName}\n${lineItems.join("\n")}\n---\nTotal: Rs.${total}\nItems: ${count}`;
 }
